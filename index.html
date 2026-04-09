@@ -9,9 +9,8 @@
         /* --- RESET I GŁÓWNE STYLE --- */
         :root {
             --bg-dark: #121212;
-            --accent-glow: rgba(255, 60, 60, 0.4);
+            --accent-glow: rgba(255, 60, 60, 0.4); /* Kolor poświaty z obrazka 2 */
             --accent-solid: #ff3c3c;
-            --success-green: #28c940;
             --glass-bg: rgba(255, 255, 255, 0.05);
             --glass-border: rgba(255, 255, 255, 0.1);
         }
@@ -22,10 +21,11 @@
             width: 100%;
             height: 100%;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden;
+            overflow: hidden; /* Wyłącza pasek przewijania */
             background: var(--bg-dark);
         }
 
+        /* --- TŁO: INTERAKTYWNE CZĄSTECZKI (JS DOŁOŻY DOWODZENIE) --- */
         #particle-bg {
             position: fixed;
             top: 0;
@@ -33,9 +33,11 @@
             width: 100%;
             height: 100%;
             z-index: 1;
+            /* Możesz dodać gradient jako tło tła dla głębi */
             background: radial-gradient(circle at center, #1a1a1a 0%, var(--bg-dark) 100%);
         }
 
+        /* --- KONTENER NA TREŚĆ: ODPOWIEDZIALNY ZA RUCH (CSS & JS) --- */
         #content-wrapper {
             position: relative;
             width: 100%;
@@ -44,23 +46,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: transform 0.1s ease;
+            transition: transform 0.1s ease; /* Płynny ruch */
         }
 
+        /* --- UKŁAD GŁÓWNY (NA BAZIE OBRAZKA 2) --- */
         .grid-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             width: 90%;
             max-width: 1200px;
-            pointer-events: auto;
+            pointer-events: auto; /* Reaguj na myszkę tylko w kontenerach */
         }
 
         @media (max-width: 900px) {
-            .grid-container { grid-template-columns: 1fr; overflow-y: auto; height: 90vh; }
+            .grid-container { grid-template-columns: 1fr; }
         }
 
-        /* --- GLASSMORPHISM --- */
+        /* --- STYLE "SZKŁA" (GLASSMORPHISM) --- */
         .glass-panel {
             background: var(--glass-bg);
             border-radius: 20px;
@@ -76,70 +79,135 @@
             box-shadow: 0 15px 40px var(--accent-glow);
         }
 
-        /* --- PROFIL --- */
-        .profile-part { display: flex; flex-direction: column; gap: 20px; }
-        .avatar-panel { text-align: center; }
+        /* --- LEWY PANEL: PROFIL I LINKI --- */
+        .profile-part {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .avatar-panel {
+            text-align: center;
+        }
+
+        .avatar-img-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
         .avatar-img {
-            width: 120px; height: 120px; border-radius: 50%;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            /* Poświata na bazie obrazka 2 */
             box-shadow: 0 0 20px 5px var(--accent-glow);
             transition: all 0.3s ease;
         }
-        .profile-name { color: white; font-weight: bold; font-size: 1.5rem; margin-top: 10px; }
-        .profile-discord { color: #aaa; font-size: 0.9rem; }
 
-        .links-panel { display: flex; flex-direction: column; gap: 10px; }
-        .link-button {
-            background: var(--glass-bg); border-radius: 10px; padding: 15px 20px;
-            text-decoration: none; color: white; display: flex;
-            justify-content: space-between; align-items: center;
-            border: 1px solid var(--glass-border); transition: 0.2s;
+        .avatar-img:hover {
+            box-shadow: 0 0 40px 10px var(--accent-glow), inset 0 0 20px rgba(255,255,255,0.2);
+            transform: rotate(5deg) scale(1.1);
         }
-        .link-button:hover { background: rgba(255,255,255,0.1); transform: translateX(5px); }
 
-        /* --- TERMINAL --- */
-        .terminal-panel { font-family: 'Courier New', monospace; position: relative; min-height: 180px; }
-        .terminal-header { display: flex; justify-content: space-between; margin-bottom: 15px; color: #777; font-size: 0.8rem; }
-        .terminal-dots { display: flex; gap: 6px; }
+        .profile-name {
+            color: white;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-top: 10px;
+        }
+
+        .profile-discord {
+            color: #aaa;
+            font-size: 0.9rem;
+        }
+
+        .links-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .link-button {
+            background: var(--glass-bg);
+            border-radius: 10px;
+            padding: 15px 20px;
+            text-decoration: none;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid var(--glass-border);
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .link-button i {
+            margin-right: 15px;
+            color: #ccc;
+        }
+
+        .link-button:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        /* --- PRAWY PANEL: TERMINAL --- */
+        .terminal-part {
+            position: relative;
+        }
+
+        .terminal-panel {
+            padding: 30px 20px 20px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            position: relative;
+        }
+
+        /* Górna belka terminala */
+        .terminal-header {
+            position: absolute;
+            top: 10px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #777;
+            font-size: 0.8rem;
+        }
+
+        .terminal-dots {
+            display: flex;
+            gap: 6px;
+        }
+
         .dot { width: 8px; height: 8px; border-radius: 50%; }
-        .red { background: #ff5f57; } .yellow { background: #ffbd2e; } .green { background: #28c940; }
+        .red { background: #ff5f57; }
+        .yellow { background: #ffbd2e; }
+        .green { background: #28c940; }
+
+        .terminal-content {
+            color: #ddd;
+            font-size: 0.9rem;
+            margin-top: 10px;
+        }
+
+        /* Kolor akcentu w tekście (np. komendy, tick) */
         .t-user { color: var(--accent-solid); font-weight: bold; }
         .t-success { color: #00ff00; }
         .t-cmd { color: #fdfdfd; }
-
-        /* --- NOWY PANEL: SKILLS (Animowany Kwadrat) --- */
-        .skills-panel {
-            margin-top: 20px;
-            animation: fadeInUp 1s ease-out forwards;
-            opacity: 0;
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .skill-item {
-            margin-bottom: 8px;
-            font-size: 0.95rem;
-            color: #eee;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 4px;
-        }
-
-        /* Stylizacja poziomów */
-        .lvl-adv { color: #ff0000; font-weight: bold; } /* Zaawansowany na czerwono */
-        .lvl-basic { color: #00ff00; font-weight: bold; } /* Podstawowy na zielono */
 
         .loading-dots:after {
             content: ' .';
             animation: dots 1.5s steps(5, end) infinite;
         }
+
         @keyframes dots {
             0%, 20% { content: ' .'; }
             40% { content: ' ..'; }
             60% { content: ' ...'; }
             80%, 100% { content: ''; }
         }
+
     </style>
 </head>
 <body>
@@ -152,14 +220,15 @@
             <div class="profile-part">
                 <div class="glass-panel avatar-panel">
                     <div class="avatar-img-wrapper">
-                        <img src="https://i.ibb.co/3fd2s58/catexplosion.jpg" alt="Avatar" class="avatar-img">
+                        <img src="https://i.ibb.co/3fd2s58/catexplosion.jpg" alt="Awatarrr" class="avatar-img">
                     </div>
                     <div class="profile-name">TWOJA NAZWA</div>
-                    <div class="profile-discord"><i class="fab fa-discord"></i> dc: szpiklol</div>
+                    <div class="profile-discord"><i class="fab fa-discord"></i> dc: TWOJ_DC</div>
                 </div>
 
                 <div class="links-panel">
-                    <a href="#" class="link-button"><i class="fab fa-github"></i> GitHub <i class="fas fa-external-link-alt"></i></a>
+                    <a href="#" class="link-button"><i class="fas fa-question-circle"></i> SOON <i class="fas fa-external-link-alt"></i></a>
+                    <a href="#" class="link-button"><i class="fab fa-github"></i> GitHub <i class="fas fa-external-link-alt">https://github.com/szpiklol</i></a>
                     <a href="#" class="link-button"><i class="fab fa-bitcoin"></i> Litecoin <i class="fas fa-copy"></i></a>
                 </div>
             </div>
@@ -172,25 +241,16 @@
                             <span class="dot yellow"></span>
                             <span class="dot green"></span>
                         </div>
-                        <div class="terminal-title">contact_info.sh</div>
+                        <div class="terminal-title">terminal</div>
                     </div>
                     <div class="terminal-content">
-                        <p><span class="t-user">user@host:~$</span> fetch contacts</p>
+                        <p><span class="t-user">szpiklol9_:~$</span> ls info/</p>
+                        <p>> Ładowanie informacji kontaktowych<span class="loading-dots"></span></p>
                         <p><i class="fab fa-discord"></i> Discord: <span class="t-cmd">szpiklol</span></p>
+                        <p><i class="fab fa-telegram-plane"></i> Telegram: <span class="t-cmd">SOON</span></p>
                         <p><i class="fas fa-envelope"></i> Email: <span class="t-cmd">szpiklol@proton.me</span></p>
-                        <p><span class="t-success">✓</span> <span class="t-user">System online.</span></p>
+                        <p><span class="t-success">✓</span> <span class="t-user">System gotowy do połączenia.</span></p>
                     </div>
-                </div>
-
-                <div class="glass-panel skills-panel">
-                    <div style="color: #fff; margin-bottom: 15px; border-bottom: 1px solid var(--accent-solid); display: inline-block;">
-                        <i class="fas fa-code"></i> SKILLS_LOG
-                    </div>
-                    <div class="skill-item">Java <span class="lvl-adv">Zaawansowany</span></div>
-                    <div class="skill-item">Python (<span class="lvl-basic">Podstawowy</span>)</div>
-                    <div class="skill-item">JAVASCRIPT(<span class="lvl-adv">ZAAWANSOWANY</span>)</div>
-                    <div class="skill-item">C++(<span class="lvl-basic">podstawowy</span>)</div>
-                    <div class="skill-item">HTML(<span class="lvl-adv">ZAAWANSOWANY</span>)</div>
                 </div>
             </div>
 
@@ -198,48 +258,113 @@
     </div>
 
     <script>
-        /* --- CZĄSTECZKI --- */
+        /* --- EFEKT 1: INTERAKTYWNE TŁO CZĄSTECZEK --- */
         const canvasContainer = document.getElementById('particle-bg');
+        
+        // Funkcja do generowania cząsteczek
         function createParticle(x = null, y = null) {
             const particle = document.createElement('div');
-            const size = Math.random() * 4 + 1;
+            particle.classList.add('particle');
+            
+            // Losowe ustawienia początkowe
+            const size = Math.random() * 5 + 1;
             const startX = x !== null ? x : Math.random() * window.innerWidth;
             const startY = y !== null ? y : Math.random() * window.innerHeight;
-            
+            const opacity = Math.random() * 0.5 + 0.1;
+            const color = Math.random() > 0.8 ? '#ffaaaa' : '#ffffff'; // Rzadkie czerwone, częstsze białe
+
+            // Styl cząsteczki
             particle.style.cssText = `
-                position: absolute; width: ${size}px; height: ${size}px;
-                background: ${Math.random() > 0.8 ? '#ff3c3c' : '#ffffff'};
-                border-radius: 50%; opacity: ${Math.random() * 0.5};
-                left: ${startX}px; top: ${startY}px; pointer-events: none;
-                filter: blur(1px); transition: transform 0.1s linear;
+                position: absolute;
+                width: ${size}px;
+                height: ${size}px;
+                background: ${color};
+                border-radius: 50%;
+                opacity: ${opacity};
+                left: ${startX}px;
+                top: ${startY}px;
+                pointer-events: none;
+                transition: transform 0.1s linear;
+                filter: blur(1px);
             `;
+
             canvasContainer.appendChild(particle);
 
-            let speedX = (Math.random() - 0.5) * 1;
-            let speedY = (Math.random() - 0.5) * 1;
+            // Ruch automatyczny
+            let speedX = (Math.random() - 0.5) * 1.5;
+            let speedY = (Math.random() - 0.5) * 1.5;
 
             function animate() {
+                // Jeśli usunęliśmy tło z jakiegoś powodu, przestań animować
                 if(!particle.isConnected) return;
-                let curX = parseFloat(particle.style.left) + speedX;
-                let curY = parseFloat(particle.style.top) + speedY;
+
+                let curX = parseFloat(particle.style.left);
+                let curY = parseFloat(particle.style.top);
+
+                curX += speedX;
+                curY += speedY;
+
+                // Odbijanie od ścian
                 if (curX <= 0 || curX >= window.innerWidth) speedX *= -1;
                 if (curY <= 0 || curY >= window.innerHeight) speedY *= -1;
+
                 particle.style.left = `${curX}px`;
                 particle.style.top = `${curY}px`;
+
                 requestAnimationFrame(animate);
             }
+            
             animate();
-            setTimeout(() => { particle.remove(); createParticle(); }, 15000);
+            
+            // Usuń po pewnym czasie i stwórz nową (utrzymanie liczby)
+            setTimeout(() => {
+                particle.remove();
+                createParticle();
+            }, 10000);
         }
 
-        for (let i = 0; i < 40; i++) createParticle();
+        // Stwórz początkowe cząsteczki
+        for (let i = 0; i < 50; i++) {
+            createParticle();
+        }
 
-        /* --- PARALAKSA --- */
+        // --- EFEKT 2: RUCH PRZY KURSORZE MYSZY (PARALAKSA) ---
         const contentWrapper = document.getElementById('content-wrapper');
+        const particles = document.getElementsByClassName('particle');
+        
         document.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 45;
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 45;
+            const xAxis = (window.innerWidth / 2 - e.pageX) / 40; // Im większa liczba, tym lżejszy ruch
+            const yAxis = (window.innerHeight / 2 - e.pageY) / 40;
+            
+            // Porusz główną zawartość
             contentWrapper.style.transform = `translateX(${xAxis}px) translateY(${yAxis}px)`;
+
+            // --- INTERAKCJA Z CZĄSTECZKAMI (dodaje chaosu) ---
+            // Każda cząsteczka delikatnie odbija się od kursora
+            for(let p of particles) {
+                const pX = parseFloat(p.style.left);
+                const pY = parseFloat(p.style.top);
+                const dx = pX - e.pageX;
+                const dy = pY - e.pageY;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                
+                if (dist < 150) { // Obsługa interakcji w promieniu 150px
+                    const angle = Math.atan2(dy, dx);
+                    const force = (150 - dist) / 150; // Im bliżej, tym mocniej
+                    
+                    // Przesuń cząsteczkę w kierunku przeciwnym do kursora
+                    p.style.transform = `translate(${Math.cos(angle) * force * 15}px, ${Math.sin(angle) * force * 15}px)`;
+                } else {
+                    p.style.transform = `translate(0px, 0px)`; // Wróć do bazy
+                }
+            }
+        });
+
+        // Tworzenie dodatkowych cząsteczek po kliknięciu
+        document.addEventListener('click', (e) => {
+            for(let i=0; i<5; i++) {
+                createParticle(e.pageX + (Math.random()-0.5)*50, e.pageY + (Math.random()-0.5)*50);
+            }
         });
     </script>
 </body>
