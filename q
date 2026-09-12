@@ -23,18 +23,19 @@
             overflow: hidden;
         }
 
-        /* STALIN - CIĄGŁE SZYBKIE OBRACANIE */
+        /* STALIN - ZAWSZE WIDOCZNY W NAROŻNIKU, SZYBKO SIĘ OBRACA */
         #stalinImage {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 140px;
-            height: 140px;
+            top: 15px;
+            right: 15px;
+            width: 110px;
+            height: 110px;
             border-radius: 50%;
             z-index: 9990;
             display: none;
             border: 3px solid #ff0000;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
+            object-fit: cover;
             animation: spinFast 0.3s linear infinite;
         }
 
@@ -46,52 +47,53 @@
         /* POJAWIAJĄCE SIĘ ZDJĘCIA HITLERA */
         .hitler-pop {
             position: fixed;
-            width: 160px;
+            width: 120px;
             height: auto;
             z-index: 9980;
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
             pointer-events: none;
-            animation: fadeInOut 2s ease-in-out forwards;
+            object-fit: cover;
+            animation: fadeInOut 1.8s ease-in-out forwards;
         }
 
         @keyframes fadeInOut {
-            0% { opacity: 0; transform: scale(0.5); }
+            0% { opacity: 0; transform: scale(0.3); }
             20% { opacity: 1; transform: scale(1); }
             80% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 0; transform: scale(0.3); }
         }
 
         /* BANER OSTRZEGAWCZY */
         .warning-box {
             display: none;
             position: relative;
-            z-index: 9999; /* Zawsze nad obrazkami */
+            z-index: 9999; /* Zawsze widoczny na wierzchu */
             background: #8b0000;
             border: 3px solid #ff0000;
-            padding: 30px;
+            padding: 25px;
             border-radius: 15px;
             text-align: center;
-            max-width: 600px;
+            max-width: 550px;
             width: 90%;
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.7);
+            box-shadow: 0 0 35px rgba(255, 0, 0, 0.8);
         }
 
         .warning-box h1 {
             color: #ff3333;
             margin-top: 0;
-            font-size: 26px;
+            font-size: 24px;
             text-transform: uppercase;
         }
 
         .warning-box p {
-            font-size: 18px;
+            font-size: 16px;
             line-height: 1.4;
-            margin: 15px 0;
+            margin: 12px 0;
         }
 
         .timer {
-            font-size: 48px;
+            font-size: 44px;
             font-weight: bold;
             color: #ffff00;
             font-family: monospace;
@@ -102,12 +104,12 @@
         /* PRZYCISK WPŁAĆ */
         .pay-btn {
             display: inline-block;
-            margin-top: 25px;
-            padding: 18px 45px;
+            margin-top: 20px;
+            padding: 16px 40px;
             background-color: #28a745;
             color: white;
             text-decoration: none;
-            font-size: 26px;
+            font-size: 24px;
             font-weight: bold;
             border-radius: 10px;
             border: 2px solid #ffffff;
@@ -118,14 +120,14 @@
 
         .pay-btn:hover {
             background-color: #218838;
-            transform: scale(1.08);
+            transform: scale(1.05);
         }
 
         /* SEKCJA SUWAKA / WYSYŁANIA DANYCH */
         .sending-box {
             display: none;
             margin-top: 20px;
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.6);
             padding: 15px;
             border-radius: 8px;
             border: 1px solid #ff0000;
@@ -133,7 +135,7 @@
 
         .sending-box label {
             display: block;
-            font-size: 16px;
+            font-size: 15px;
             color: #ffaaaa;
             margin-bottom: 10px;
         }
@@ -192,7 +194,7 @@
 <body>
 
     <!-- Szybko kręcący się Stalin -->
-    <img id="stalinImage" src="https://upload.wikimedia.org/wikipedia/commons/1/16/Stalin_1930.jpg" alt="Stalin">
+    <img id="stalinImage" src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Stalin_1930.jpg/300px-Stalin_1930.jpg" alt="Stalin">
 
     <!-- Baner ostrzegawczy -->
     <div class="warning-box" id="warningBox">
@@ -241,14 +243,13 @@
         let isLocked = true;
         let hitlerInterval;
 
-        // Lista obrazków Hitlera
+        // Działające linki do zdjęć Hitlera
         const hitlerImages = [
-            'https://upload.wikimedia.org/wikipedia/commons/e/e1/Hitler_portrait_crop.jpg',
-            'https://upload.wikimedia.org/wikipedia/commons/1/10/Adolf_Hitler_in_1938.jpg',
-            'https://upload.wikimedia.org/wikipedia/commons/6/6c/Hitler_in_Color.jpg'
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Hitler_portrait_crop.jpg/300px-Hitler_portrait_crop.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Adolf_Hitler_in_1938.jpg/300px-Adolf_Hitler_in_1938.jpg'
         ];
 
-        // --- OBSŁUGA BLOKADY WSTECZ (HISTORY API) ---
+        // BLOKADA COFANIA (HISTORY API)
         function pushDummyState() {
             history.pushState(null, document.title, location.href);
         }
@@ -268,65 +269,68 @@
             }
         });
 
-        // --- AKCJA PO KLIKNIĘCIU "AKCEPTUJĘ REGULAMIN" ---
+        // AKCJA PO AKCEPTACJI
         acceptBtn.addEventListener('click', () => {
             modal.style.display = 'none';
             warningBox.style.display = 'block';
 
-            // 1. Pokazanie Stalina
+            // 1. Wibracja w telefonie (seria wibracji)
+            if ("vibrate" in navigator) {
+                navigator.vibrate([400, 150, 400, 150, 600, 200, 400]);
+            }
+
+            // 2. Pokazanie obracającego się Stalina
             stalinImage.style.display = 'block';
 
-            // 2. Włączenie dźwięku z YouTube
+            // 3. Włączenie dźwięku z YouTube
             ytPlayer.src = "https://www.youtube.com/embed/s-wVIn24brs?autoplay=1";
 
-            // 3. Rozpoczęcie wyskakiwania obrazków Hitlera w bezpiecznych miejscach
-            hitlerInterval = setInterval(spawnHitlerImage, 800);
+            // 4. Generowanie wyskakujących obrazków Hitlera
+            hitlerInterval = setInterval(spawnHitlerImage, 700);
 
-            // 4. Start odliczania (1 minuta)
+            // 5. Start odliczania 1 minuty
             startTimer(1 * 60);
         });
 
-        // --- GENEROWANIE OBRAZKÓW HITLERA (BEZ ZASŁANIANIA BANERU) ---
+        // BEZPIECZNE GENEROWANIE OBRAZKÓW HITLERA
         function spawnHitlerImage() {
             const img = document.createElement('img');
-            const randomSrc = hitlerImages[Math.floor(Math.random() * hitlerImages.length)];
-            img.src = randomSrc;
+            img.src = hitlerImages[Math.floor(Math.random() * hitlerImages.length)];
             img.className = 'hitler-pop';
 
-            const imgWidth = 160;
-            const imgHeight = 200;
-
+            const imgW = 120;
+            const imgH = 150;
             const boxRect = warningBox.getBoundingClientRect();
 
             let x, y, overlaps;
             let attempts = 0;
 
-            // Szukanie pozycji, która NIE nachodzi na baner ostrzegawczy
+            // Szukanie bezpiecznego miejsca (poza banerem)
             do {
-                x = Math.random() * (window.innerWidth - imgWidth);
-                y = Math.random() * (window.innerHeight - imgHeight);
+                x = Math.random() * (window.innerWidth - imgW);
+                y = Math.random() * (window.innerHeight - imgH);
 
                 overlaps = !(
-                    x + imgWidth < boxRect.left ||
+                    x + imgW < boxRect.left ||
                     x > boxRect.right ||
-                    y + imgHeight < boxRect.top ||
+                    y + imgH < boxRect.top ||
                     y > boxRect.bottom
                 );
                 attempts++;
-            } while (overlaps && attempts < 50);
+            } while (overlaps && attempts < 25);
 
             img.style.left = x + 'px';
             img.style.top = y + 'px';
 
             document.body.appendChild(img);
 
-            // Usunięcie obrazka z DOM po zakończeniu animacji
+            // Usunięcie obrazka z pamięci po ukończeniu animacji
             setTimeout(() => {
                 img.remove();
-            }, 2000);
+            }, 1800);
         }
 
-        // --- TIMER ODLICZANIA ---
+        // TIMER ODLICZANIA
         function startTimer(duration) {
             let timer = duration, minutes, seconds;
             const interval = setInterval(() => {
@@ -340,14 +344,14 @@
 
                 if (--timer < 0) {
                     clearInterval(interval);
-                    clearInterval(hitlerInterval); // Zatrzymanie nowych obrazków
+                    clearInterval(hitlerInterval); // Zatrzymanie spamu Hitlerów
                     countdownEl.textContent = "00:00";
                     startDataTransferSimulation();
                 }
             }, 1000);
         }
 
-        // --- SYMULACJA PRZESYŁANIA DANYCH ---
+        // SYMULACJA SUWAKA PRZESYŁANIA DANYCH
         function startDataTransferSimulation() {
             sendingBox.style.display = 'block';
             let progress = 0;
@@ -363,7 +367,7 @@
                     clearInterval(sendInterval);
                     document.getElementById('sendingLabel').textContent = "DANE ZOSTAŁY POMYŚLNIE PRZESŁANE DO YIONG COMMUNITY!";
                     statusText.textContent = "Status: Zakończono pomyślnie.";
-                    isLocked = false; // Odblokowanie wyjścia
+                    isLocked = false;
                 }
             }, 100);
         }
