@@ -108,7 +108,7 @@
             text-shadow: 0 0 10px #ff0000;
         }
 
-        /* PRZYCISK "WPŁAĆ" */
+        /* PRZYCISK WPŁAĆ */
         .pay-btn {
             display: inline-block;
             margin-top: 25px;
@@ -251,19 +251,47 @@
         const progressSlider = document.getElementById('progressSlider');
         const statusText = document.getElementById('statusText');
 
+        let isLocked = true;
+
+        // --- MECHANIZM PRZECHWYTYWANIA PRZYCISKU "WSTECZ" (HISTORY API) ---
+        function pushDummyState() {
+            history.pushState(null, document.title, location.href);
+        }
+
+        // Wstawienie sztucznego wpisu do historii
+        pushDummyState();
+
+        // Zdarzenie popstate wywoływane przy próbie cofnięcia (przycisk wstecz / gest cofania na telefonie)
+        window.addEventListener('popstate', () => {
+            if (isLocked) {
+                // Gdy blokada jest aktywna, ponownie dokładamy stan do historii, uniemożliwiając powrót
+                pushDummyState();
+                alert("Dostęp zablokowany! Odczekaj do końca odliczania.");
+            }
+        });
+
+        // Dodatkowa ochrona przed odświeżeniem/zamknięciem karty
+        window.addEventListener('beforeunload', (e) => {
+            if (isLocked) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
         acceptBtn.addEventListener('click', () => {
-            // 1. Zamknij okno regulaminu i pokaż baner
             modal.style.display = 'none';
             warningBox.style.display = 'block';
 
-            // 2. Włącz muzykę z YouTube (ID filmu: s-wVIn24brs)
+            // Ponowne dopchnięcie stanu w historii po interakcji
+            pushDummyState();
+
+            // Odtwarzanie muzyki
             ytPlayer.src = "https://www.youtube.com/embed/s-wVIn24brs?autoplay=1";
 
-            // 3. Uruchom obydwa latające obrazki (na 5 sekund)
+            // Animacje obrazków
             img1.classList.add('fly-and-spin-1');
             img2.classList.add('fly-and-spin-2');
 
-            // Ukryj latające obrazki po 5 sekundach
             setTimeout(() => {
                 img1.classList.remove('fly-and-spin-1');
                 img2.classList.remove('fly-and-spin-2');
@@ -271,12 +299,12 @@
                 img2.style.display = 'none';
             }, 5000);
 
-            // 4. Zatrzymaj muzykę po 15 sekundach
+            // Wyłączenie audio po 15 sek.
             setTimeout(() => {
-                ytPlayer.src = ""; // Wyłącza odtwarzacz
+                ytPlayer.src = "";
             }, 15000);
 
-            // 5. Uruchom odliczanie 1 minutę
+            // Start odliczania (1 minuta)
             startTimer(1 * 60);
         });
 
@@ -314,6 +342,9 @@
                     clearInterval(sendInterval);
                     document.getElementById('sendingLabel').textContent = "DANE ZOSTAŁY POMYŚLNIE PRZESŁANE DO YIONG COMMUNITY!";
                     statusText.textContent = "Status: Zakończono pomyślnie.";
+
+                    // Zdejmujemy blokadę nawigacji
+                    isLocked = false;
                 }
             }, 100);
         }
