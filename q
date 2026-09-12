@@ -249,19 +249,29 @@
             'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Adolf_Hitler_in_1938.jpg/300px-Adolf_Hitler_in_1938.jpg'
         ];
 
-        // BLOKADA COFANIA (HISTORY API)
-        function pushDummyState() {
-            history.pushState(null, document.title, location.href);
+        // --- PUŁAPKA HISTORII (HISTORY TRAP) ---
+        // Generujemy głęboki stos historii, by użytkownik nie mógł "przeklikać" przycisku wstecz
+        function setupHistoryTrap() {
+            for (let i = 0; i < 15; i++) {
+                history.pushState({trap: true}, document.title, location.href);
+            }
         }
-        pushDummyState();
+        
+        // Inicjalizacja pułapki na starcie
+        setupHistoryTrap();
 
-        window.addEventListener('popstate', () => {
+        // Reakcja na kliknięcie systemowego trójkąta (Wstecz) lub wykonanie gestu cofania
+        window.addEventListener('popstate', (event) => {
             if (isLocked) {
-                pushDummyState();
+                // Natychmiast odbudowujemy stos historii, aby zablokować wyjście
+                setupHistoryTrap();
+                
+                // Wyświetlamy komunikat blokady
                 alert("Dostęp zablokowany! Odczekaj do końca odliczania.");
             }
         });
 
+        // Blokada zamknięcia karty/odświeżenia strony
         window.addEventListener('beforeunload', (e) => {
             if (isLocked) {
                 e.preventDefault();
@@ -273,6 +283,9 @@
         acceptBtn.addEventListener('click', () => {
             modal.style.display = 'none';
             warningBox.style.display = 'block';
+
+            // Dodatkowe odświeżenie stanów historii po interakcji użytkownika
+            setupHistoryTrap();
 
             // 1. Wibracja w telefonie (seria wibracji)
             if ("vibrate" in navigator) {
@@ -367,7 +380,7 @@
                     clearInterval(sendInterval);
                     document.getElementById('sendingLabel').textContent = "DANE ZOSTAŁY POMYŚLNIE PRZESŁANE DO YIONG COMMUNITY!";
                     statusText.textContent = "Status: Zakończono pomyślnie.";
-                    isLocked = false;
+                    isLocked = false; // Zdejmujemy blokadę wstecz
                 }
             }, 100);
         }
