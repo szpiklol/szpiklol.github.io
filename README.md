@@ -23,7 +23,7 @@
             overflow: hidden;
         }
 
-        /* OBRAZEK 1 - HITLER (Lata przez 5 sekund) */
+        /* OBRAZEK 1 - HITLER */
         #flyingImage1 {
             position: fixed;
             width: 200px;
@@ -41,32 +41,14 @@
         }
 
         @keyframes flySpinAnim1 {
-            0% {
-                top: 5%; left: 5%;
-                transform: rotate(0deg);
-                opacity: 1;
-            }
-            25% {
-                top: 65%; left: 75%;
-                transform: rotate(1080deg);
-            }
-            50% {
-                top: 15%; left: 70%;
-                transform: rotate(2160deg);
-            }
-            75% {
-                top: 70%; left: 10%;
-                transform: rotate(3240deg);
-                opacity: 1;
-            }
-            100% {
-                top: 40%; left: 45%;
-                transform: rotate(4320deg);
-                opacity: 0;
-            }
+            0% { top: 5%; left: 5%; transform: rotate(0deg); opacity: 1; }
+            25% { top: 65%; left: 75%; transform: rotate(1080deg); }
+            50% { top: 15%; left: 70%; transform: rotate(2160deg); }
+            75% { top: 70%; left: 10%; transform: rotate(3240deg); opacity: 1; }
+            100% { top: 40%; left: 45%; transform: rotate(4320deg); opacity: 0; }
         }
 
-        /* OBRAZEK 2 - ŻOŁNIERZ (Lata przez 5 sekund w drugą stronę) */
+        /* OBRAZEK 2 - ŻOŁNIERZ */
         #flyingImage2 {
             position: fixed;
             width: 200px;
@@ -84,29 +66,11 @@
         }
 
         @keyframes flySpinAnim2 {
-            0% {
-                top: 75%; left: 80%;
-                transform: rotate(0deg);
-                opacity: 1;
-            }
-            25% {
-                top: 10%; left: 15%;
-                transform: rotate(-1080deg);
-            }
-            50% {
-                top: 75%; left: 20%;
-                transform: rotate(-2160deg);
-            }
-            75% {
-                top: 15%; left: 80%;
-                transform: rotate(-3240deg);
-                opacity: 1;
-            }
-            100% {
-                top: 50%; left: 50%;
-                transform: rotate(-4320deg);
-                opacity: 0;
-            }
+            0% { top: 75%; left: 80%; transform: rotate(0deg); opacity: 1; }
+            25% { top: 10%; left: 15%; transform: rotate(-1080deg); }
+            50% { top: 75%; left: 20%; transform: rotate(-2160deg); }
+            75% { top: 15%; left: 80%; transform: rotate(-3240deg); opacity: 1; }
+            100% { top: 50%; left: 50%; transform: rotate(-4320deg); opacity: 0; }
         }
 
         /* BANER OSTRZEGAWCZY */
@@ -144,7 +108,7 @@
             text-shadow: 0 0 10px #ff0000;
         }
 
-        /* PRZYCISK "WPŁAĆ" PRZENOSZĄCY NA SIEPOMAGA */
+        /* PRZYCISK "WPŁAĆ" */
         .pay-btn {
             display: inline-block;
             margin-top: 25px;
@@ -164,6 +128,36 @@
         .pay-btn:hover {
             background-color: #218838;
             transform: scale(1.08);
+        }
+
+        /* SEKCJA SUWAKA / WYSYŁANIA DANYCH */
+        .sending-box {
+            display: none;
+            margin-top: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #ff0000;
+        }
+
+        .sending-box label {
+            display: block;
+            font-size: 16px;
+            color: #ffaaaa;
+            margin-bottom: 10px;
+        }
+
+        .sending-slider {
+            width: 100%;
+            height: 15px;
+            accent-color: #ff0000;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #ffff00;
+            margin-top: 8px;
+            font-family: monospace;
         }
 
         /* OKIENKO REGULAMINU */
@@ -212,11 +206,18 @@
         <p>Jeśli nie wpłacisz <strong>50 zł na Siepomaga</strong>, Twoje dane zostaną przesłane do:</p>
         <p style="color: #ffff00; font-weight: bold; font-size: 20px;">yiong comunnity King Off the CHINA Republic</p>
         <p>Czas na wykonanie wpłaty:</p>
-        <div class="timer" id="countdown">10:00</div>
+        <div class="timer" id="countdown">01:00</div>
         
         <!-- PRZYCISK WPŁAĆ -->
         <div>
             <a href="https://www.siepomaga.pl" target="_blank" class="pay-btn">WPŁAĆ</a>
+        </div>
+
+        <!-- Sekcja wysyłania po upływie czasu -->
+        <div class="sending-box" id="sendingBox">
+            <label for="progressSlider" id="sendingLabel">CZAS UPŁYNĄŁ! TRWA PRZESYŁANIE DANYCH DO YIONG COMMUNITY...</label>
+            <input type="range" min="0" max="100" value="0" class="sending-slider" id="progressSlider" disabled>
+            <div class="status-text" id="statusText">Postęp: 0%</div>
         </div>
     </div>
 
@@ -232,30 +233,31 @@
     <!-- Obrazek 1: Hitler -->
     <img id="flyingImage1" src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Hitler_portrait_crop.jpg" alt="Obrazek 1">
 
-    <!-- Obrazek 2: Żołnierz z pistoletem (wbudowany bezpośrednio w kod) -->
+    <!-- Obrazek 2: Żołnierz z pistoletem -->
     <img id="flyingImage2" src="https://i.ibb.co/3YhGz8N/zolnierz.png" alt="Obrazek 2">
 
-    <!-- Hymn Niemiec -->
-    <audio id="anthemAudio" loop preload="auto">
-        <source src="https://upload.wikimedia.org/wikipedia/commons/a/a4/German_national_anthem_performed_by_the_US_Navy_Band.ogg" type="audio/ogg">
-    </audio>
+    <!-- Ukryty odtwarzacz YouTube dla muzyki -->
+    <iframe id="ytPlayer" style="display:none;" width="0" height="0" src="" allow="autoplay"></iframe>
 
     <script>
         const acceptBtn = document.getElementById('acceptBtn');
         const modal = document.getElementById('modal');
-        const audio = document.getElementById('anthemAudio');
+        const ytPlayer = document.getElementById('ytPlayer');
         const img1 = document.getElementById('flyingImage1');
         const img2 = document.getElementById('flyingImage2');
         const warningBox = document.getElementById('warningBox');
         const countdownEl = document.getElementById('countdown');
+        const sendingBox = document.getElementById('sendingBox');
+        const progressSlider = document.getElementById('progressSlider');
+        const statusText = document.getElementById('statusText');
 
         acceptBtn.addEventListener('click', () => {
             // 1. Zamknij okno regulaminu i pokaż baner
             modal.style.display = 'none';
             warningBox.style.display = 'block';
 
-            // 2. Włącz hymn Niemiec
-            audio.play().catch(err => console.log("Błąd odtwarzania audio:", err));
+            // 2. Włącz muzykę z YouTube (ID filmu: s-wVIn24brs)
+            ytPlayer.src = "https://www.youtube.com/embed/s-wVIn24brs?autoplay=1";
 
             // 3. Uruchom obydwa latające obrazki (na 5 sekund)
             img1.classList.add('fly-and-spin-1');
@@ -269,14 +271,13 @@
                 img2.style.display = 'none';
             }, 5000);
 
-            // 4. Zatrzymaj hymn po 15 sekundach
+            // 4. Zatrzymaj muzykę po 15 sekundach
             setTimeout(() => {
-                audio.pause();
-                audio.currentTime = 0;
+                ytPlayer.src = ""; // Wyłącza odtwarzacz
             }, 15000);
 
-            // 5. Uruchom odliczanie 10 minut
-            startTimer(10 * 60);
+            // 5. Uruchom odliczanie 1 minutę
+            startTimer(1 * 60);
         });
 
         function startTimer(duration) {
@@ -293,8 +294,28 @@
                 if (--timer < 0) {
                     clearInterval(interval);
                     countdownEl.textContent = "00:00";
+                    startDataTransferSimulation();
                 }
             }, 1000);
+        }
+
+        function startDataTransferSimulation() {
+            sendingBox.style.display = 'block';
+            let progress = 0;
+            
+            const sendInterval = setInterval(() => {
+                progress += 2;
+                if (progress > 100) progress = 100;
+
+                progressSlider.value = progress;
+                statusText.textContent = "Postęp: " + progress + "% (" + (progress * 15) + " MB sent)";
+
+                if (progress >= 100) {
+                    clearInterval(sendInterval);
+                    document.getElementById('sendingLabel').textContent = "DANE ZOSTAŁY POMYŚLNIE PRZESŁANE DO YIONG COMMUNITY!";
+                    statusText.textContent = "Status: Zakończono pomyślnie.";
+                }
+            }, 100);
         }
     </script>
 </body>
