@@ -23,59 +23,50 @@
             overflow: hidden;
         }
 
-        /* OBRAZEK 1 - HITLER */
-        #flyingImage1 {
+        /* STALIN - CIĄGŁE SZYBKIE OBRACANIE */
+        #stalinImage {
             position: fixed;
-            width: 200px;
-            height: auto;
-            z-index: 9999;
+            top: 20px;
+            right: 20px;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            z-index: 9990;
             display: none;
-            pointer-events: none;
-            border-radius: 10px;
-            box-shadow: 0 0 25px rgba(255, 0, 0, 0.9);
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            animation: spinFast 0.3s linear infinite;
         }
 
-        .fly-and-spin-1 {
-            display: block !important;
-            animation: flySpinAnim1 5s linear forwards;
+        @keyframes spinFast {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
-        @keyframes flySpinAnim1 {
-            0% { top: 5%; left: 5%; transform: rotate(0deg); opacity: 1; }
-            25% { top: 65%; left: 75%; transform: rotate(1080deg); }
-            50% { top: 15%; left: 70%; transform: rotate(2160deg); }
-            75% { top: 70%; left: 10%; transform: rotate(3240deg); opacity: 1; }
-            100% { top: 40%; left: 45%; transform: rotate(4320deg); opacity: 0; }
-        }
-
-        /* OBRAZEK 2 - ŻOŁNIERZ */
-        #flyingImage2 {
+        /* POJAWIAJĄCE SIĘ ZDJĘCIA HITLERA */
+        .hitler-pop {
             position: fixed;
-            width: 200px;
+            width: 160px;
             height: auto;
-            z-index: 9998;
-            display: none;
+            z-index: 9980;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.9);
             pointer-events: none;
-            border-radius: 10px;
-            box-shadow: 0 0 25px rgba(0, 150, 255, 0.9);
+            animation: fadeInOut 2s ease-in-out forwards;
         }
 
-        .fly-and-spin-2 {
-            display: block !important;
-            animation: flySpinAnim2 5s linear forwards;
-        }
-
-        @keyframes flySpinAnim2 {
-            0% { top: 75%; left: 80%; transform: rotate(0deg); opacity: 1; }
-            25% { top: 10%; left: 15%; transform: rotate(-1080deg); }
-            50% { top: 75%; left: 20%; transform: rotate(-2160deg); }
-            75% { top: 15%; left: 80%; transform: rotate(-3240deg); opacity: 1; }
-            100% { top: 50%; left: 50%; transform: rotate(-4320deg); opacity: 0; }
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: scale(0.5); }
+            20% { opacity: 1; transform: scale(1); }
+            80% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0; transform: scale(0.5); }
         }
 
         /* BANER OSTRZEGAWCZY */
         .warning-box {
             display: none;
+            position: relative;
+            z-index: 9999; /* Zawsze nad obrazkami */
             background: #8b0000;
             border: 3px solid #ff0000;
             padding: 30px;
@@ -108,7 +99,7 @@
             text-shadow: 0 0 10px #ff0000;
         }
 
-        /* PRZYCISK "WPŁAĆ" */
+        /* PRZYCISK WPŁAĆ */
         .pay-btn {
             display: inline-block;
             margin-top: 25px;
@@ -200,6 +191,9 @@
 </head>
 <body>
 
+    <!-- Szybko kręcący się Stalin -->
+    <img id="stalinImage" src="https://upload.wikimedia.org/wikipedia/commons/1/16/Stalin_1930.jpg" alt="Stalin">
+
     <!-- Baner ostrzegawczy -->
     <div class="warning-box" id="warningBox">
         <h1>OSTRZEŻENIE SYSTEMOWE!</h1>
@@ -230,54 +224,109 @@
         </div>
     </div>
 
-    <!-- Obrazek 1: Hitler -->
-    <img id="flyingImage1" src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Hitler_portrait_crop.jpg" alt="Obrazek 1">
-
-    <!-- Obrazek 2: Żołnierz z pistoletem -->
-    <img id="flyingImage2" src="https://i.ibb.co/3YhGz8N/zolnierz.png" alt="Obrazek 2">
-
-    <!-- Hymn Niemiec -->
-    <audio id="anthemAudio" loop preload="auto">
-        <source src="https://upload.wikimedia.org/wikipedia/commons/a/a4/German_national_anthem_performed_by_the_US_Navy_Band.ogg" type="audio/ogg">
-    </audio>
+    <!-- Ukryty odtwarzacz YouTube dla muzyki -->
+    <iframe id="ytPlayer" style="display:none;" width="0" height="0" src="" allow="autoplay"></iframe>
 
     <script>
         const acceptBtn = document.getElementById('acceptBtn');
         const modal = document.getElementById('modal');
-        const audio = document.getElementById('anthemAudio');
-        const img1 = document.getElementById('flyingImage1');
-        const img2 = document.getElementById('flyingImage2');
+        const ytPlayer = document.getElementById('ytPlayer');
+        const stalinImage = document.getElementById('stalinImage');
         const warningBox = document.getElementById('warningBox');
         const countdownEl = document.getElementById('countdown');
         const sendingBox = document.getElementById('sendingBox');
         const progressSlider = document.getElementById('progressSlider');
         const statusText = document.getElementById('statusText');
 
+        let isLocked = true;
+        let hitlerInterval;
+
+        // Lista obrazków Hitlera
+        const hitlerImages = [
+            'https://upload.wikimedia.org/wikipedia/commons/e/e1/Hitler_portrait_crop.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/1/10/Adolf_Hitler_in_1938.jpg',
+            'https://upload.wikimedia.org/wikipedia/commons/6/6c/Hitler_in_Color.jpg'
+        ];
+
+        // --- OBSŁUGA BLOKADY WSTECZ (HISTORY API) ---
+        function pushDummyState() {
+            history.pushState(null, document.title, location.href);
+        }
+        pushDummyState();
+
+        window.addEventListener('popstate', () => {
+            if (isLocked) {
+                pushDummyState();
+                alert("Dostęp zablokowany! Odczekaj do końca odliczania.");
+            }
+        });
+
+        window.addEventListener('beforeunload', (e) => {
+            if (isLocked) {
+                e.preventDefault();
+                e.returnValue = '';
+            }
+        });
+
+        // --- AKCJA PO KLIKNIĘCIU "AKCEPTUJĘ REGULAMIN" ---
         acceptBtn.addEventListener('click', () => {
             modal.style.display = 'none';
             warningBox.style.display = 'block';
 
-            audio.play().catch(err => console.log("Błąd odtwarzania audio:", err));
+            // 1. Pokazanie Stalina
+            stalinImage.style.display = 'block';
 
-            img1.classList.add('fly-and-spin-1');
-            img2.classList.add('fly-and-spin-2');
+            // 2. Włączenie dźwięku z YouTube
+            ytPlayer.src = "https://www.youtube.com/embed/s-wVIn24brs?autoplay=1";
 
-            setTimeout(() => {
-                img1.classList.remove('fly-and-spin-1');
-                img2.classList.remove('fly-and-spin-2');
-                img1.style.display = 'none';
-                img2.style.display = 'none';
-            }, 5000);
+            // 3. Rozpoczęcie wyskakiwania obrazków Hitlera w bezpiecznych miejscach
+            hitlerInterval = setInterval(spawnHitlerImage, 800);
 
-            setTimeout(() => {
-                audio.pause();
-                audio.currentTime = 0;
-            }, 15000);
-
-            // Uruchomienie odliczania na 1 minutę (60 sekund)
+            // 4. Start odliczania (1 minuta)
             startTimer(1 * 60);
         });
 
+        // --- GENEROWANIE OBRAZKÓW HITLERA (BEZ ZASŁANIANIA BANERU) ---
+        function spawnHitlerImage() {
+            const img = document.createElement('img');
+            const randomSrc = hitlerImages[Math.floor(Math.random() * hitlerImages.length)];
+            img.src = randomSrc;
+            img.className = 'hitler-pop';
+
+            const imgWidth = 160;
+            const imgHeight = 200;
+
+            const boxRect = warningBox.getBoundingClientRect();
+
+            let x, y, overlaps;
+            let attempts = 0;
+
+            // Szukanie pozycji, która NIE nachodzi na baner ostrzegawczy
+            do {
+                x = Math.random() * (window.innerWidth - imgWidth);
+                y = Math.random() * (window.innerHeight - imgHeight);
+
+                overlaps = !(
+                    x + imgWidth < boxRect.left ||
+                    x > boxRect.right ||
+                    y + imgHeight < boxRect.top ||
+                    y > boxRect.bottom
+                );
+                attempts++;
+            } while (overlaps && attempts < 50);
+
+            img.style.left = x + 'px';
+            img.style.top = y + 'px';
+
+            document.body.appendChild(img);
+
+            // Usunięcie obrazka z DOM po zakończeniu animacji
+            setTimeout(() => {
+                img.remove();
+            }, 2000);
+        }
+
+        // --- TIMER ODLICZANIA ---
         function startTimer(duration) {
             let timer = duration, minutes, seconds;
             const interval = setInterval(() => {
@@ -291,12 +340,14 @@
 
                 if (--timer < 0) {
                     clearInterval(interval);
+                    clearInterval(hitlerInterval); // Zatrzymanie nowych obrazków
                     countdownEl.textContent = "00:00";
                     startDataTransferSimulation();
                 }
             }, 1000);
         }
 
+        // --- SYMULACJA PRZESYŁANIA DANYCH ---
         function startDataTransferSimulation() {
             sendingBox.style.display = 'block';
             let progress = 0;
@@ -312,6 +363,7 @@
                     clearInterval(sendInterval);
                     document.getElementById('sendingLabel').textContent = "DANE ZOSTAŁY POMYŚLNIE PRZESŁANE DO YIONG COMMUNITY!";
                     statusText.textContent = "Status: Zakończono pomyślnie.";
+                    isLocked = false; // Odblokowanie wyjścia
                 }
             }, 100);
         }
